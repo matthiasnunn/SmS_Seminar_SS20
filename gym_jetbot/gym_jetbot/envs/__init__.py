@@ -1,0 +1,1 @@
+from gym_jetbot.envs.jetbot_env import JetBotEnv
