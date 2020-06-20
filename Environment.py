@@ -19,7 +19,7 @@ class Environment( gym.Env ):
     
     def __init__( self ):
     
-        self.super( Environment, self ).__init__()
+        super( Environment, self ).__init__()
 
         self.ultrasonic = Ultrasonic()
         self.object_recognition = ObjectRecognition()

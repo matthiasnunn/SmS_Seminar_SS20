@@ -11,7 +11,7 @@ class RobotController():
     def __init__(self):
         self.robot = Robot()
         
-    def action(self, sterring, throttle):
+    def action(self, steering, throttle):
         steering = float(steering)
         throttle = float(throttle)
         self.robot.left_motor.value = max(min(throttle + steering, self.MAX_MOTORLIMIT), self.MIN_MOTORLIMIT)

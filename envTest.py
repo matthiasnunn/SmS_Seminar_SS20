@@ -35,5 +35,3 @@ for episode in range(episodes):
         if done:
             print ("Episode ", episode+1, "/", episodes, " finished with a score of: ", score)
             break
-    plt.plot(score)
-    plt.show

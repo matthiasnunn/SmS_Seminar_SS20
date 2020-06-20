@@ -1,9 +1,12 @@
 import numpy as np
 import gym
+import Jetson.GPIO as GPIO
+
 from gym import spaces, error, utils
 from .core.controller import RobotController
 from .core.observer import Observer
-from .utils import us_measurement_lib as usml
+from .core.ultrasonic import Ultrasonic
+from .core.objectRecognition import ObjectRecognition
 
 
 #Camera Settings
@@ -17,12 +20,19 @@ MAX_STEERING = -1.0
 MIN_THROTTLE = 0.0
 MAX_THROTTLE = 1.0
 
+#Pin Settings
+GPIO_LED = 40
+GPIO_BUTTON = 27
+GPIO_BUTTON_5V = 28
+
 class JetBotEnv(gym.Env):
 
     def __init__(self):
         super(JetBotEnv, self).__init__()
         self.controller = RobotController()
-        self.observer = Observer(IMAGE_WIDTH, IMAGE_HEIGHT)
+        #self.observer = Observer(IMAGE_WIDTH, IMAGE_HEIGHT)
+        self.ultrasonic = Ultrasonic()
+        self.object_recognition = ObjectRecognition()
         self.observation_space = spaces.Box(low=np.finfo(np.float32).min,
                                             high=np.finfo(np.float32).max,
                                             shape=IMAGE_SIZE,
@@ -31,22 +41,34 @@ class JetBotEnv(gym.Env):
         #action space
         self.action_space = spaces.Box(low=np.array([MIN_STEERING, MIN_THROTTLE]),
                                        high=np.array([MAX_STEERING, MAX_THROTTLE]), dtype=np.float32)
-                                    
+
+        #info is used to store debugging information         
         self.info = {}
         
         self.observer.start()
+
+        self.__initPins__()
         
     def step(self, action):
         self.controller.action(action[0], action[1])
-        obs = self.observer.observation()
-        reward = _get_reward() #Reward basierend auf geschwindigkeit und entefernung von objekten
-        done = check_done(reward) #CNN output oder ultraschall nähe von einem gegenstand
-        return obs, reward, done, self.info
+        #obs = self.observer.observation()
+        obs = self.object_recognition.prob_blocked()
+        state, reward = _get_reward()
+        done = check_done(reward)
+        return obs, reward, state, self.info
         
     def reset(self):
+        GPIO.output( self.GPIO_LED, GPIO.HIGH )
+        
+        # Warten auf Taster
+        while GPIO.input(self.GPIO_BUTTON) == GPIO.LOW:
+            time.sleep( 0.01 )
+        
+        GPIO.output( self.GPIO_LED, GPIO.LOW )
+
         self.controller.action(0,0)
-        obs = self.observer.observation()
-        #User controlled restart?
+        #obs = self.observer.observation()
+        obs = self.object_recognition.prob_blocked()
         return obs
     
     #information display (video, images, printfs for debugging purpose)
@@ -61,15 +83,26 @@ class JetBotEnv(gym.Env):
         pass
         
     def _get_reward(self):
-        worker = usml.EventClass()
-        distance = worker.measure_distance()
-        if(distance >= 2):
-            return distance*10
+        prob_blocked = self.object_recognition.prob_blocked()
+        distance = ultrasonic.distance()
+        if(distance < 4.0 and distance > 0.1):
+            state = "crashed"
+            reward = -100
         else:
-            return distance*10*(-1)
+            state = prob_blocked
+            reward = 1
+        return state, reward
 
     def check_done(self, reward):
-        if(reward > 100):
-            return False
-        else:
+        done = False;
+        if(reward < 100):
             return True
+        return done;
+
+    def __initPins__( self ):
+    
+        GPIO.setmode( GPIO.BOARD )
+        
+        GPIO.setup( self.GPIO_LED,       GPIO.OUT                           )
+        GPIO.setup( self.GPIO_BUTTON,    GPIO.IN,  pull_up_down=GPIO.PUD_UP )
+        GPIO.setup( self.GPIO_BUTTON_5V, GPIO.OUT                           )
