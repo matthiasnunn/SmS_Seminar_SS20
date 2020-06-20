@@ -30,7 +30,7 @@ class JetBotEnv(gym.Env):
     def __init__(self):
         super(JetBotEnv, self).__init__()
         self.controller = RobotController()
-        #self.observer = Observer(IMAGE_WIDTH, IMAGE_HEIGHT)
+        self.observer = Observer(IMAGE_WIDTH, IMAGE_HEIGHT)
         self.ultrasonic = Ultrasonic()
         self.object_recognition = ObjectRecognition()
         self.observation_space = spaces.Box(low=np.finfo(np.float32).min,
