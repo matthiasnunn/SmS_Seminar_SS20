@@ -30,7 +30,7 @@ class Ultrasonic():
 
         # setze Trigger nach 0.01ms aus LOW
         time.sleep( 0.00001 )
-        GPIO.output( self.GPIO_ULTRASONIC_TRIGGER, GPIO.FALSE )
+        GPIO.output( self.GPIO_ULTRASONIC_TRIGGER, GPIO.LOW )
 
         StartZeit = time.time()
         StopZeit = time.time()
