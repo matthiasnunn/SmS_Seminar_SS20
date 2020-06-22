@@ -2,7 +2,6 @@ import gym
 import gym_jetbot
 import random
 import numpy as np
-import matplotlib.pyplot as plt
 
 from stable_baselines.ddpg.policies import MlpPolicy
 from stable_baselines.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
@@ -33,5 +32,6 @@ for episode in range(episodes):
         print ('obs= ', observation, ' | reward= ', reward, ' | done= ', done)
         score += reward
         if done:
+            GPIO.cleanup()
             print ("Episode ", episode+1, "/", episodes, " finished with a score of: ", score)
             break

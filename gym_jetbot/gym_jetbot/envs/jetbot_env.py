@@ -1,6 +1,7 @@
 import numpy as np
 import gym
 import Jetson.GPIO as GPIO
+import time
 
 from gym import spaces, error, utils
 from .core.controller import RobotController
@@ -20,12 +21,12 @@ MAX_STEERING = -1.0
 MIN_THROTTLE = 0.0
 MAX_THROTTLE = 1.0
 
-#Pin Settings
-GPIO_LED = 40
-GPIO_BUTTON = 27
-GPIO_BUTTON_5V = 28
-
 class JetBotEnv(gym.Env):
+
+    #Pin Settings
+    GPIO_LED = 40
+    GPIO_BUTTON = 18
+    #GPIO_BUTTON_5V = 28
 
     def __init__(self):
         super(JetBotEnv, self).__init__()
@@ -40,7 +41,8 @@ class JetBotEnv(gym.Env):
         
         #action space
         self.action_space = spaces.Box(low=np.array([MIN_STEERING, MIN_THROTTLE]),
-                                       high=np.array([MAX_STEERING, MAX_THROTTLE]), dtype=np.float32)
+                                       high=np.array([MAX_STEERING, MAX_THROTTLE]),
+                                       dtype=np.float32)
 
         #info is used to store debugging information         
         self.info = {}
@@ -105,4 +107,4 @@ class JetBotEnv(gym.Env):
         
         GPIO.setup( self.GPIO_LED,       GPIO.OUT                           )
         GPIO.setup( self.GPIO_BUTTON,    GPIO.IN,  pull_up_down=GPIO.PUD_UP )
-        GPIO.setup( self.GPIO_BUTTON_5V, GPIO.OUT                           )
+        #GPIO.setup( self.GPIO_BUTTON_5V, GPIO.OUT                           )

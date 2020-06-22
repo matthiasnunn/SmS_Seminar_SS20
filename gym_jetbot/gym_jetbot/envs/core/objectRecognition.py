@@ -9,6 +9,12 @@ import torchvision
 import traitlets
 
 
+mean = 255.0 * np.array([0.485, 0.456, 0.406])
+stdev = 255.0 * np.array([0.229, 0.224, 0.225])
+
+normalize = torchvision.transforms.Normalize(mean, stdev)
+device = torch.device('cuda')
+
 class ObjectRecognition():
 
     def __init__( self ):
@@ -17,13 +23,7 @@ class ObjectRecognition():
         self.model.classifier[6] = torch.nn.Linear(self.model.classifier[6].in_features, 2)
         self.model.load_state_dict(torch.load('best_model.pth'))
 
-        device = torch.device('cuda')
         model = self.model.to(device)
-
-        mean = 255.0 * np.array([0.485, 0.456, 0.406])
-        stdev = 255.0 * np.array([0.229, 0.224, 0.225])
-
-        normalize = torchvision.transforms.Normalize(mean, stdev)
 
         self.camera = Camera.instance(width=224, height=224)
         image = widgets.Image(format='jpeg', width=224, height=224)
