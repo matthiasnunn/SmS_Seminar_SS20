@@ -21,12 +21,13 @@ MAX_STEERING = -1.0
 MIN_THROTTLE = 0.0
 MAX_THROTTLE = 1.0
 
+
 class JetBotEnv(gym.Env):
 
     #Pin Settings
     GPIO_LED = 40
     GPIO_BUTTON = 18
-    #GPIO_BUTTON_5V = 28
+    GPIO_BUTTON_5V = 33
 
     def __init__(self):
         super(JetBotEnv, self).__init__()
@@ -34,9 +35,9 @@ class JetBotEnv(gym.Env):
         self.observer = Observer(IMAGE_WIDTH, IMAGE_HEIGHT)
         self.ultrasonic = Ultrasonic()
         self.object_recognition = ObjectRecognition()
-        self.observation_space = spaces.Box(low=np.finfo(np.float32).min,
-                                            high=np.finfo(np.float32).max,
-                                            shape=IMAGE_SIZE,
+        self.observation_space = spaces.Box(low=0,
+                                            high=1,
+                                            shape=(1,),
                                             dtype=np.float32)
         
         #action space
@@ -55,8 +56,8 @@ class JetBotEnv(gym.Env):
         self.controller.action(action[0], action[1])
         #obs = self.observer.observation()
         obs = self.object_recognition.prob_blocked()
-        state, reward = _get_reward()
-        done = check_done(reward)
+        state, reward = self._get_reward()
+        done = self.check_done(reward)
         return obs, reward, state, self.info
         
     def reset(self):
@@ -86,7 +87,7 @@ class JetBotEnv(gym.Env):
         
     def _get_reward(self):
         prob_blocked = self.object_recognition.prob_blocked()
-        distance = ultrasonic.distance()
+        distance = self.ultrasonic.distance()
         if(distance < 4.0 and distance > 0.1):
             state = "crashed"
             reward = -100
@@ -107,4 +108,6 @@ class JetBotEnv(gym.Env):
         
         GPIO.setup( self.GPIO_LED,       GPIO.OUT                           )
         GPIO.setup( self.GPIO_BUTTON,    GPIO.IN,  pull_up_down=GPIO.PUD_UP )
-        #GPIO.setup( self.GPIO_BUTTON_5V, GPIO.OUT                           )
+        GPIO.setup( self.GPIO_BUTTON_5V, GPIO.OUT                           )
+        
+        GPIO.output( self.GPIO_BUTTON_5V, GPIO.HIGH )
