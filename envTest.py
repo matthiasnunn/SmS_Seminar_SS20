@@ -4,17 +4,12 @@ import random
 import numpy as np
 
 from stable_baselines.ddpg.policies import MlpPolicy
-from stable_baselines.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
 from stable_baselines import DDPG
 
 env = gym.make('JetBot-v0')
 
-n_actions = env.action_space.shape[-1]
-param_noise = None
-action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
-
-model = DDPG(MlpPolicy, env, verbose=1, param_noise=param_noise, action_noise=action_noise)
-model.learn(total_timesteps=400)
+model = DDPG(MlpPolicy, env, verbose=1)
+model.learn(total_timesteps=100)
 model.save('ddpg_jetbot')
 
 #model = DDPG.load('ddpg_jetbot')
@@ -29,7 +24,7 @@ for episode in range(episodes):
     while not done:
         action = model.predict(observation, deterministic=True)
         observation, reward, done, info = env.step(action)
-        print ('obs= ', observation, ' | reward= ', reward, ' | done= ', done)
+        print ('obs=', observation, ' | reward=', reward, ' | done=', done)
         score += reward
         if done:
             GPIO.cleanup()

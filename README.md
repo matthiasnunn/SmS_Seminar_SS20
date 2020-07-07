@@ -12,7 +12,7 @@
 
 ### Installation
 
-1. Follow the Nvidia-Jetson Instructions at: ``https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit`
+1. Follow the Nvidia-Jetson Instructions at: `https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit`
 2. Follow the Create SD-Card Image from Scratch guide from: `https://github.com/NVIDIA-AI-IOT/jetbot/wiki/Create-SD-Card-Image-From-Scratch`( !!! For Pytorch and Tenorflow look at the points below)
    - For the Tensorflow Installation you can follow: `https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform/index.html`
    - And for the Pytorch Setup (Jetpack 4.4 DP Pytorch 1.5 wheel): `https://forums.developer.nvidia.com/t/pytorch-for-jetson-nano-version-1-5-0-now-available/72048`

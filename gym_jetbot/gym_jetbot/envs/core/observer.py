@@ -1,27 +1,14 @@
-try:
-	from jetbot import Camera
-except ImportError:
-	class Camera:pass
-	
+import numpy as np
+
+from .jetcam.jetcam.csi_camera import CSICamera
+
+
 class Observer:
 
     def __init__(self, camera_width, camera_height):
-        self.camera = Camera(width=camera_width, height=camera_height)
-        self.image = None
-
-    def start(self):
-        self.camera.observe(self._callback, names='value')
-        self.camera.start()
-
-    def stop(self):
-        self.camera.stop()
-
-    def _callback(self, change):
-        img = change['new']
-        #change BGR TO RGB HWC
-        self.image = img[:,:,::-1]
+    
+        self.camera = CSICamera(width=camera_width, height=camera_height)
 
     def observation(self):
-        while self.image is None:
-            pass
-        return self.image
+    
+        return self.camera.read()
